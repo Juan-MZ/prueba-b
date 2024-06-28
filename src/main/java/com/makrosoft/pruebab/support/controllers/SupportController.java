@@ -37,6 +37,11 @@ public class SupportController {
         return iSupportService.updateSupport(supportSec, supportDTO);
     }
 
+    @PatchMapping("/assign_support")
+    public Response<SupportDTO> assignSupport() {
+        return iSupportService.assignSupport();
+    }
+
     @GetMapping("/find_all_supports_by_worker/{workerSec}")
     public Response<List<SupportDTO>> getSupportsByWorkerSec(@PathVariable final Integer workerSec) {
         return iSupportService.getSupportsByWorkerSec(workerSec);

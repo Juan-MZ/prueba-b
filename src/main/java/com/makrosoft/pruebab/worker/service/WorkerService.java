@@ -13,8 +13,8 @@ import com.makrosoft.pruebab.worker.respository.IWorkerRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -74,5 +74,42 @@ public class WorkerService implements IWorkerService{
         WorkerDTO updateWorkerDTO = this.modelMapper.map(iWorkerRepository.save(workerEntity), WorkerDTO.class);
 
         return new ResponseHandler<>(200, "Trabajador actualizado con éxito", "http://localhost:8081/worker/update_worker/{workerSec}", updateWorkerDTO).getResponse();
+    }
+
+    @Override
+    public Worker getWorkerLessBusy() {
+        List<Worker> workerList = this.iWorkerRepository.findAll();
+        if(workerList.isEmpty()){
+            throw new BusinessRuleException("workers.not.found");
+        }
+        List<Worker> leastBusyWorkers = new ArrayList<>();
+        Integer lessWeight = getAcumulatedWeightToday(workerList.get(0));
+        leastBusyWorkers.add(workerList.get(0));
+
+        for (Worker worker : workerList) {
+            Integer weight = getAcumulatedWeightToday(worker);
+            if(weight < lessWeight){
+                lessWeight = weight;
+                leastBusyWorkers.clear();
+                leastBusyWorkers.add(worker);
+            } else if(weight.equals(lessWeight)){
+                leastBusyWorkers.add(worker);
+            }
+        }
+
+        Random random = new Random();
+        int randomIndex = random.nextInt(leastBusyWorkers.size());
+        return leastBusyWorkers.get(randomIndex);
+    }
+
+    private Integer getAcumulatedWeightToday(Worker worker){
+        int weight = 0;
+        for(Support support: worker.getSupports()){
+            LocalDate today = LocalDate.now();
+            if(support.getSupportAssignatedDate().isEqual(today)){
+                weight = weight + support.getSupportWeight();
+            }
+        }
+        return weight;
     }
 }

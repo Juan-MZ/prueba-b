@@ -42,6 +42,14 @@ public interface ISupportService {
     public Response<SupportDTO> updateSupport(Integer supportSec, SupportDTO supportDTO);
 
     /**
+     * Service to assign a support
+     *
+     * @return {@link Response} Response object for the service, which contains
+     * information about the outcome of the transaction.
+     */
+    public Response<SupportDTO> assignSupport();
+
+    /**
      * Service to get supports by worker
      *
      * @param WorkerSec ID Objects to do the search
